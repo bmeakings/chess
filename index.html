@@ -1,0 +1,109 @@
+<!DOCTYPE hmtl>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" ng-app="ChessGame">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Chess</title>
+		<link rel="stylesheet" type="text/css" href="./css/style.css" />
+		<script type="application/javascript" src="./js/angular.js" charset="UTF-8"></script>
+		<script type="application/javascript" src="./js/app.js" charset="UTF-8"></script>
+		<script type="application/javascript" src="./js/filters.js" charset="UTF-8"></script>
+		<script type="application/javascript" src="./controllers/game.js" charset="UTF-8"></script>
+	</head>
+	<body>
+		<div id="gameArea" class="alignC" ng-controller="GameCtrl">
+			<div id="gridWrapper">
+				<div id="gameStatusArea">{{ gameStatus }}</div>
+				<div id="gridArea">
+					<div class="colLabel" ng-repeat="r in gridFiles">{{ r }}</div>
+					<div ng-repeat="row in gridRows" class="gridRow">
+						<div class="rowLabel">{{ gridRanks[row[$index].y] }}</div>
+						<button
+							class="gridCell {{ cell.cssClass }}"
+							ng-class="{
+								'pieceCanMove': cell.player == currPlayer,
+								'pieceSelected': cell.selected,
+								'pieceTarget': cell.canMoveTo,
+								'canCapture': cell.piece && cell.canMoveTo
+							}"
+							ng-repeat="cell in row"
+							ng-click="cellClick(cell)"
+							oncontextmenu="return false;"
+						>
+							<img
+								ng-if="cell.piece"
+								ng-src="./img/piece_{{ cell.piece + '-' + cell.player }}.svg"
+							/>
+							<div ng-show="cell.canMoveTo && !cell.piece" class="cellMoveDot">&bull;</div>
+						</button>
+						<div class="rowLabel">{{ gridRanks[row[$index].y] }}</div>
+					</div>
+					<div class="colLabel" ng-repeat="r in gridFiles">{{ r }}</div>
+				</div>
+				<div id="settingsArea">
+					<div id="logArea">{{ gameLog[gameLog.length - 1] }}</div>
+					<button
+						id="settingsBtn"
+						class="floatR"
+						title="About"
+					>
+						<img
+							class="buttonImg"
+							src="./img/help.svg"
+							ng-click="showAboutDlg()"
+						/>
+					</button>
+				</div>
+			</div>
+
+			<!-- dialogue overlay -->
+			<div
+				id="dialogueOverlay"
+				ng-show="showDialogue"
+				ng-click="dialogueOverlayClick()"
+			></div>
+
+			<!-- dialogue popup -->
+			<div
+				id="dialogueBox"
+				ng-show="showDialogue"
+				ng-style="{
+					'top': dlgPopup.top,
+					'width': dlgPopup.width,
+					'min-height': dlgPopup.height,
+					'margin-left': dlgPopup.left,
+				}"
+			>
+				<div class="dialogueHeading">
+					<div class="dialogueTitle">{{ dlgPopup.title }}</div>
+					<button
+						class="dialogueCloseBtn"
+						ng-hide="dlgPopup.noCloseBtn"
+						ng-click="closeDialogue()"
+					>&times;</button>
+				</div>
+				<div class="dialogueContent">
+					<div ng-bind-html="dlgPopup.template"></div>
+					<form ng-if="dlgFormFields.length > 0" ng-submit="dlgSubmit()">
+						<span
+							ng-repeat="field in dlgFormFields"
+							ng-switch="field.type"
+							class="{{ field.cssClass }}"
+						>
+							<button
+								ng-switch-when="button"
+								ng-click="field.click.fn(field.click.params)"
+								ng-bind-html="field.html"
+								type="button"
+							>{{ field.value }}</button>
+							<input
+								ng-switch-default
+								ng-model="field.model"
+								type="{{ field.type }}"
+							/>
+						</span>
+					</form>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
