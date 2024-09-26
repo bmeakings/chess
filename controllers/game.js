@@ -239,7 +239,7 @@
 				for (let i = 1; i <= 2; i++) {
 					const nextCell = (dir[$scope.currPlayer] * i);
 
-					if (pieceBlocking || i == 2 && !cell.firstMove)
+					if (pieceBlocking || (i == 2 && !cell.firstMove))
 						break;
 
 					for (const row of $scope.gridRows) {
